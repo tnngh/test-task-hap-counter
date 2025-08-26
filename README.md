@@ -7,7 +7,7 @@ Given:
 * a **haplotagged BAM** (primary alignments carry `HP` tag),
 * a **VCF/VCF.gz** of variants,
 
-produce a DataFrame with one row per **biallelic SNP** (skip everything else) and four required integer columns:
+produce a DataFrame with one row per SNV and four required integer columns:
 
 * `chrom`, `pos`, `h1_ref`, `h1_alt`, `h2_ref`, `h2_alt`
 
@@ -16,7 +16,7 @@ Optionally, you may include extra columns like if convenient and find useful.
 ## Inputs & assumptions
 
 * BAM is coordinate-sorted, indexed, and **haplotagged** via `HP` tag (1 or 2).
-* VCF may contain mixed variant types; **process only rows where `len(REF)==1` and `len(ALT)==1`** (SNPs). **You can ignore** indels, MNPs, symbolic alleles, multi-allelics (you may skip rows with multiple ALT alleles).
+* VCF is phased and may contain mixed variant types; **process only rows where `len(REF)==1` and `len(ALT)==1`** (SNVs). You can ignore indels, MNPs, *etc*.
 
 ## Output schema
 
