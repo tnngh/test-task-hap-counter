@@ -22,4 +22,4 @@ Produce a TSV file with rows corresponding to SNVs and the following 6 required 
 
 # Test data
 
-Test data archive contains read alignments (30x coverage) and variants for chr16:28000000-28500000 region of HG002 genome [(source)](https://42basepairs.com/download/s3/ont-open-data/giab_2023.05/analysis/variant_calling/hg002_sup_60x/).
+Test data archive contains read alignments (30x coverage) and variants for chr16:28000000-28500000 region of HG002 genome.
