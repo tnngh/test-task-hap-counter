@@ -4,6 +4,7 @@
 
 Produce a program in Python programming language, which given read alignments (in BAM format with haplotype tags) and a set of variants (in phased VCF format) computes support for ALT and REF alleles across reads assigned to individual haplotypes.
 
+**Note that usage of GenAI coding assistants (GitHub Copilot, Claude Code, etc) is both allowed and encouraged**.
 
 ## Inputs & assumptions
 
@@ -17,7 +18,7 @@ Produce a TSV file with rows corresponding to SNVs and the following 6 required 
 
 * `chrom` – chromosome name
 * `pos`– position on chromosome
-* `h<H>_<A>` with `H` in {0,1} and `A` in {'ALT, 'REF'} (4 columns total) — number of primary alignments with HP==`H` supporting allele `A`
+* `h<H>_<A>` with `H` in {1,2} and `A` in {'ALT, 'REF'} (4 columns total) — number of primary alignments with HP==`H` supporting allele `A`
 
 # Test data
 
