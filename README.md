@@ -13,7 +13,7 @@ Produce a program in Python programming language, which given read alignments (i
 
 
 ## Output
- 
+
 Produce a TSV file with rows corresponding to SNVs and the following 6 required columns (feel free to include extra columns if you think they might be useful):
 
 * `chrom` – chromosome name
@@ -51,63 +51,42 @@ docker run --rm -v $(pwd):/workspace haplotype-counter haplotype-counter --help
 ## Available Commands
 
 ```bash
-# Install dependencies (if not already installed)
-poetry install
 
 # Run tests
-poetry run pytest
+pytest
 
-# Run tests with coverage
-poetry run pytest --cov=haplotype_counter --cov-report=html
-
-# Format code
-poetry run black .
-
-# Lint code
-poetry run ruff check .
-
-# Type check
-poetry run mypy src/
-
-# Run the CLI (once implemented)
-poetry run haplotype-counter test_data/*.bam test_data/*.vcf.gz -o results.tsv
-
-# Or activate shell and run directly
-poetry shell
-haplotype-counter test_data/*.bam test_data/*.vcf.gz -o results.tsv
+# Run notebook
+jupyter nbconvert --execute --to notebook haplotype_analysis.ipynb
 ```
 
 ## Examining Test Data
 
-The Docker image includes samtools, bcftools, and other bioinformatics tools:
+The Docker image includes samtools, bcftools.
 
-```bash
-# Examine BAM file
-samtools view -H test_data/*.bam | head -20
-samtools view test_data/*.bam | head -10
-samtools view test_data/*.bam | cut -f12- | grep -o 'HP:i:[12]' | sort | uniq -c
-
-# Examine VCF file  
-zcat test_data/*.vcf.gz | head -50 | grep "^#"
-zcat test_data/*.vcf.gz | grep -v "^#" | head -10
-
-# Check file integrity
-samtools quickcheck test_data/*.bam
-tabix -l test_data/*.vcf.gz
-```
 
 ## Project Structure
 
 ```
 src/haplotype_counter/    # Main package
 ├── __init__.py
-├── cli.py               # Command-line interface
-├── core.py             # Core processing logic (to be implemented)
-└── utils.py            # Utility functions (to be implemented)
+├── haplotype_counter.py             # Core processing logic
+
+test_data/              # Test data directory
 
 tests/                   # Test suite
 ├── __init__.py
-├── test_cli.py         # CLI tests
-└── test_core.py        # Core logic tests (to be implemented)
+├── test_haplotype_counter.py         # Tests helper methods in haplotype_counter.py
+└── test_haplotype_counter.py        # Tests HaplotypeCounter class
+
+output/                  # Output directory
+├── haplotype_counts.tsv         # Output TSV file for the data found in test_data/
+
+Dockerfile              # Dockerfile for the project
+
+README.md               # This file
+
+pyproject.toml          # Poetry configuration
+
+haplotype_analysis.ipynb # Jupyter notebook for the analysis.  Finds the haplotype counts for the data found in test_data/ and outputs to output/haplotype_counts.tsv
 
 ```
