@@ -1,0 +1,11 @@
+##fileformat=VCFv4.2
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##contig=<ID=16,length=1000000>
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE1
+16	28000000	rs123	A	T	60	PASS	AC=1;AN=2	GT	0/1
+16	28000001	rs124	G	C	70	PASS	AC=1;AN=2	GT	1/1
+16	28000002	rs125	T	A	50	PASS	AC=1;AN=2	GT	0/1
+16	28000003	rs126	AT	GC	80	PASS	AC=1;AN=2	GT	0/1
+16	28000004	rs127	A	T,G	90	PASS	AC=1,1;AN=2	GT	1/2

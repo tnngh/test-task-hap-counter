@@ -8,13 +8,9 @@ import pytest
 from haplotype_counter.haplotype_counter import (
     SNV,
     HaplotypeCount,
-    HaplotypeStats,
-    count_allele_support_pileup,
     export_to_tsv,
-    get_summary_stats,
     is_primary_align_qc_pass_mismatch,
     parse_vcf_snvs,
-    process_all_snvs,
 )
 
 
@@ -106,45 +102,6 @@ def test_parse_vcf_snvs_filters_correctly(mock_variant_file: Mock, mock_exists: 
     assert snvs[1].pos_1based == 300
     assert snvs[1].ref == "G"
     assert snvs[1].alt == "C"
-
-
-def test_get_summary_stats_empty_list() -> None:
-    """Test get_summary_stats with empty list."""
-    stats: HaplotypeStats = get_summary_stats([])
-    assert stats.total_snvs == 0
-    assert stats.total_h1_reads == 0
-    assert stats.total_h2_reads == 0
-    assert stats.snvs_with_h1_support == 0
-    assert stats.snvs_with_h2_support == 0
-    assert stats.snvs_with_both_haplotypes == 0
-    assert stats.avg_h1_reads_per_snv == 0
-    assert stats.avg_h2_reads_per_snv == 0
-
-
-def test_get_summary_stats_with_data() -> None:
-    """Test get_summary_stats with sample data."""
-    counts: list[HaplotypeCount] = [
-        HaplotypeCount(
-            chrom="chr1", pos_1based=100, h1_ref=5, h1_alt=3, h2_ref=2, h2_alt=4
-        ),
-        HaplotypeCount(
-            chrom="chr1", pos_1based=200, h1_ref=0, h1_alt=0, h2_ref=8, h2_alt=1
-        ),
-        HaplotypeCount(
-            chrom="chr1", pos_1based=300, h1_ref=6, h1_alt=2, h2_ref=0, h2_alt=0
-        ),
-    ]
-
-    stats: HaplotypeStats = get_summary_stats(counts)
-
-    assert stats.total_snvs == 3
-    assert stats.total_h1_reads == 16  # 5+3+0+0+6+2
-    assert stats.total_h2_reads == 15  # 2+4+8+1+0+0
-    assert stats.snvs_with_h1_support == 2  # positions 100 and 300
-    assert stats.snvs_with_h2_support == 2  # positions 100 and 200
-    assert stats.snvs_with_both_haplotypes == 1  # only position 100
-    assert stats.avg_h1_reads_per_snv == 5  # 16/3 rounded to int
-    assert stats.avg_h2_reads_per_snv == 5  # 15/3 rounded to int
 
 
 def test_export_to_tsv_empty_list() -> None:

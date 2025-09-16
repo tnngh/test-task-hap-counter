@@ -71,7 +71,7 @@ COPY pyproject.toml poetry.lock* ./
 RUN poetry install --with dev --no-root
 
 # Install Jupyter kernel system-wide (as root)
-# RUN python -m ipykernel install --name=python3 --display-name="Python 3" --prefix=/usr/local
+RUN python -m ipykernel install --name=python3 --display-name="Python 3" --prefix=/usr/local
 
 # Change ownership of workspace to vscode user
 RUN chown -R $USERNAME:$USERNAME /workspace

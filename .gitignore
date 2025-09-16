@@ -145,14 +145,7 @@ ehthumbs.db
 Thumbs.db
 
 # Project specific
-output/
 results/
-*.tsv
-*.bam
-*.bai
-*.vcf
-*.vcf.gz
-*.tbi
 
 # But keep test data
 !test_data/

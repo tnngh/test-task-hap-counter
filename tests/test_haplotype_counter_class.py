@@ -1,6 +1,5 @@
 """Tests for the HaplotypeCounter class."""
 from pathlib import Path
-from re import M
 from unittest.mock import Mock, patch
 
 import pytest
