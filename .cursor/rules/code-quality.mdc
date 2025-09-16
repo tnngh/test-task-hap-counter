@@ -1,0 +1,76 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+**DESIGN PRINCIPLES**
+- Single Responsibility: Each function/class does one thing well
+- DRY: Extract common logic into reusable components (but avoid premature abstraction)
+- YAGNI: Don't build features until actually needed
+- Fail fast with early returns and guard clauses
+- Composition over inheritance
+
+**DEFENSIVE PROGRAMMING**
+- Validate inputs at function boundaries
+- Handle edge cases explicitly (empty lists, None values, zero/negative numbers)
+- Use specific exception types with descriptive messages
+- Always assume external data is invalid until proven otherwise
+- Create exception hierarchies: `BaseAppError` -> domain-specific errors
+
+**MAINTAINABILITY**
+- Functions should be not be too long lines (except coordination/orchestration methods). Be critical when methods grow large.
+- Max 4 parameters per function (use data classes/models for more)
+- No magic numbers or hardcoded strings - use constants
+- Complex logic requires explanatory comments about WHY, not WHAT
+- Prefer immutable data structures when possible (consider performance in hot paths)
+
+**TESTING & RELIABILITY**
+- Write tests for public interfaces and error conditions
+- Unit tests for business logic, integration tests for cross-boundary operations
+- Use dependency injection for external services
+- Make side effects explicit and isolated
+- Every public method should have clear, predictable behavior
+
+**ARCHITECTURE & PERFORMANCE**
+- Create new modules when domain boundaries are clear
+- Consider performance implications of abstractions in critical paths
+- Database queries should be testable and optimizable
+- Async operations should handle cancellation and timeouts
+- Cache expensive operations, but make cache invalidation explicit
+
+**DATA STRUCTURE RULES:**
+- NEVER use parallel arrays/lists where data has implicit relationships
+- Create explicit composite types for related data
+- Use Pydantic models for structured data groupings
+- Prefer `list[CompositeType]` over `tuple[list, list, list]`
+- Make data relationships obvious from type signatures alone
+
+**EXAMPLES:**
+***Bad: Implicit relationship***
+```python
+user_ids: list[str] = []
+user_names: list[str] = []
+user_scores: list[float] = []
+```
+***Good: Explicit structure using Pydantic***
+```python
+class UserData(BaseModel):
+    user_id: str =  Field(
+        description="ID of the user",
+    )
+    name: str =  Field(
+        description="Name of the user",
+    )
+    score: str =  Field(
+        description="The user's score",
+    )
+
+users: list[UserData] = []
+```
+
+**WHEN TO BREAK RULES**
+- **Line limits**: Coordination methods that orchestrate multiple operations
+- **DRY**: When abstraction creates tight coupling between unrelated domains
+- **Immutability**: In performance-critical code paths with measured impact
+- **4-parameter limit**: Configuration objects and builder patterns
+- **Single Responsibility**: Framework integration points and adapter patterns

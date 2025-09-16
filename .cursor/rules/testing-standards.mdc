@@ -1,0 +1,104 @@
+---
+description: When doing ANYTHING related to testing
+globs: 
+alwaysApply: false
+---
+**DIRECTORY STRUCTURE & NAMING**
+- Test directories must mirror the main codebase structure: `tests/api/`, `tests/database/`, `tests/jobs/`
+- Test files named `test_<module_name>.py` (e.g., `test_job_service.py`, `test_job_routes.py`)
+- Use `__init__.py` files in test directories to ensure proper package structure
+- Place test helpers in `tests/<domain>/helpers/` directories
+- Tests should be kept at the root of the file, instead of put into test classes
+
+**FIXTURE PATTERNS**
+- Use `@pytest.fixture` with function scope by default
+- Create descriptive fixture names that explain what they provide
+- Group related fixtures in `conftest.py` files at appropriate levels
+- Use `spec` parameter when creating mocks: `Mock(spec=OriginalClass)`
+
+Examples:
+```python
+@pytest.fixture
+def mock_job_repository():
+    repository = Mock(spec=JobRepository)
+    repository.create_job = AsyncMock()
+    repository.get_job_with_results = AsyncMock()
+    return repository
+
+@pytest.fixture
+def sample_create_job_dto():
+    return CreateJobDTO(
+        target_gene="BRCA1",
+        disease_indication="Cancer",
+        modules={"module1": ["feature1"]}
+    )
+```
+
+**TEST STRUCTURE & NAMING**
+- Test method names should describe the scenario: `test_create_job_with_valid_data_returns_pending_job`
+- Use `@pytest.mark.asyncio` for async test methods
+- Follow Arrange-Act-Assert pattern clearly
+- Group related tests in the same test class when beneficial
+
+**MOCKING STRATEGIES**
+- Mock at service/repository boundaries, not internal implementation details
+- Use `AsyncMock()` for async methods, `Mock()` for sync methods
+- Mock external dependencies (databases, APIs, file systems) completely
+- Use `monkeypatch` for patching imports and global state
+
+Examples:
+```python
+# Good: Mock at service boundary
+@pytest.fixture
+def job_service(mock_job_repository, mock_logger):
+    return JobService(
+        job_repository=mock_job_repository,
+        logger=mock_logger,
+        # ... other dependencies
+    )
+
+# Good: Async mocking
+mock_repository.create_job = AsyncMock(return_value=expected_job)
+```
+
+**TEST DATA MANAGEMENT**
+- Use fixtures for reusable test data models
+- Use `freezegun` for time-dependent tests: `@freeze_time(fixed_datetime)`
+- Create realistic test data that matches production data patterns
+- Avoid hardcoded values - use constants or derive from fixtures
+
+**UNIT VS INTEGRATION TESTS**
+- Unit tests: Test single classes/functions with all dependencies mocked
+- Integration tests: Test across boundaries (API + database, service + repository)
+- Place unit tests in `tests/<module>/test_<class>.py`
+- Place integration tests in `tests/<module>/integration/` or mark with `@pytest.mark.integration`
+
+**FASTAPI TESTING PATTERNS**
+- Use `TestClient` fixture for API endpoint testing
+- Override FastAPI dependencies in fixtures using `app.dependency_overrides`
+- Mock settings and external services in `conftest.py`
+- Test both success and error scenarios for each endpoint
+
+**ASSERTION PATTERNS**
+- Use specific assertions: `assert result.id == expected_id` not `assert result`
+- Test the exact behavior, not just that something was called
+- Verify mock calls with specific arguments when behavior matters
+- Use `assert_called_once_with()` instead of `assert_called()` when precise
+
+**ERROR TESTING**
+- Test all error conditions and edge cases
+- Use `pytest.raises()` for expected exceptions
+- Verify error messages contain useful information
+- Test error logging with `extra={"error_details": {...}}` pattern
+
+Examples:
+```python
+def test_invalid_user_raises_specific_error(job_service):
+    with pytest.raises(InvalidUserError, match="Test users not allowed"):
+        await job_service.process_user("test_invalid_user")
+    
+    # Verify error was logged properly
+    job_service.logger.error.assert_called_once()
+    call_args = job_service.logger.error.call_args
+    assert "error_details" in call_args.kwargs["extra"]
+```

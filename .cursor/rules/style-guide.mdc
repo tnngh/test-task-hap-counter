@@ -1,0 +1,114 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When writing code, strictly follow these style conventions:
+
+**DOCUMENTATION & TYPE HINTS**
+- Use Google style docstrings for all public methods
+- Include Args, Returns, and Raises sections in docstrings
+- Type hints are MANDATORY on all function parameters and return types
+- Use `Type | None` for nullable types
+- Prefer non-imported typing: `list` not `List`, `dict` not `Dict`, `tuple` not `Tuple`
+
+**DATA STRUCTURES & MODELS**
+- Prefer Pydantic models over raw dictionaries for structured data
+- Use dataclasses for simple value objects without validation
+- Never pass around dict[str, Any] - create proper models
+- Enum classes for constants instead of string literals
+
+Examples:
+```python
+# Bad: Generic dictionary
+user_data: dict[str, Any] = {"name": "John", "age": 30}
+
+# Good: Pydantic model
+class UserData(BaseModel):
+    name: str
+    age: int
+
+user_data: UserData = UserData(name="John", age=30)
+```
+
+**NULL CHECKING & VALIDATION**
+- Always check for None before using optional values
+- Use early returns with guard clauses: `if not value: return`
+- Validate inputs at function boundaries with explicit checks
+- Raise specific exceptions with descriptive messages
+- Use `if obj is None:` pattern for explicit None checks
+
+Examples:
+```python
+# Good: Early return with guard clause
+def process_user(user_id: str | None) -> UserData | None:
+    if not user_id:
+        return None
+    
+    if user_id.startswith("test_"):
+        raise InvalidUserError(f"Test users not allowed: {user_id}")
+    
+    return get_user(user_id)
+```
+
+**CODE FORMATTING**
+- Max line length: 120 characters
+- Use trailing commas in multi-line structures
+- Break long parameter lists into multiple lines (one per line)
+- Group imports: stdlib, third-party, local (separated by blank lines)
+- Use double quotes for strings consistently
+
+**NAMING CONVENTIONS**
+- Functions/methods: snake_case with verb_noun pattern (`get_user`, `create_job`)
+- Variables: snake_case, descriptive nouns (`user_data`, `job_config`)
+- Classes: PascalCase (`UserService`, `JobManager`)
+- Constants: UPPER_SNAKE_CASE (`MAX_RETRY_COUNT`, `DEFAULT_TIMEOUT`)
+- Private methods: _leading_underscore (`_validate_input`)
+- Boolean variables: is_/has_/can_/should_ prefixes (`is_valid`, `has_permission`)
+
+**ERROR HANDLING**
+- Create specific exception classes, never raise generic Exception
+- Use try/except blocks close to the operation that might fail
+- Always include the original exception in error messages
+- Log errors with error_details before re-raising (see LOGGING PRACTICES)
+- Create exception hierarchy: `BaseAppError` -> `ValidationError` -> `InvalidUserError`
+
+**LOGGING PRACTICES**
+- Use `extra={"error_details": {...}}` when logging errors for structured error data
+- Format: `self.logger.error("Context message", extra={"error_details": {"error": str(e)}})`
+- Include relevant context in error_details dict (IDs, parameters, state info)
+- Use descriptive error messages that explain what operation failed
+
+Example:
+```python
+try:
+    result = process_job(job_id)
+except ProcessingError as e:
+    self.logger.error(
+        f"Failed to process job {job_id}",
+        extra={"error_details": {"job_id": job_id, "error": str(e), "user_id": user.id}}
+    )
+    raise
+```
+
+**ASYNC VS THREADING**
+- Prefer `async/await` and `asyncio` for IO-bound operations when all upstream/downstream code is async
+- Most operations are IO-bound (database, API calls, file operations), making async the preferred choice
+- When prompted for multithreading/concurrency, first evaluate if async is viable across the entire call chain
+- Only use threading when async support is broken somewhere in the chain or for CPU-bound work
+- Threading is the fallback option, not the preferred approach
+- **CRITICAL**: if you notice CPU intensive code that could block the main thread, TELL THE USER IMMEDIATELY. 
+- **CRITICAL**: prioritise async libraries over sync. For example, the `AsyncOpensearch` client over `Opensearch`
+
+Decision flow:
+```python
+# Preferred: All async chain
+async def process_data() -> Result:
+    data = await fetch_from_api()        # async IO
+    result = await save_to_database(data)  # async IO
+    return result
+
+# Fallback: Mixed chain requiring threading
+def process_legacy_data() -> Result:
+    # Some legacy sync-only dependency forces threading approach
+    return legacy_sync_processor.process()
